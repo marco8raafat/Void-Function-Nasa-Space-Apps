@@ -23,10 +23,10 @@ export default function WeatherMap({ onLocationSelect, selectedLocation }: Weath
       maxZoom: 18
     }).addTo(map);
 
-    // Custom marker icon
+    // Custom marker icon using a more reliable CDN
     const customIcon = L.icon({
-      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-cyan.png',
-      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+      iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+      shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
       iconSize: [25, 41],
       iconAnchor: [12, 41],
       popupAnchor: [1, -34],
@@ -69,10 +69,10 @@ export default function WeatherMap({ onLocationSelect, selectedLocation }: Weath
       mapInstanceRef.current.removeLayer(markerRef.current);
     }
 
-    // Custom marker icon
+    // Custom marker icon using a more reliable CDN
     const customIcon = L.icon({
-      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-cyan.png',
-      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+      iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+      shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
       iconSize: [25, 41],
       iconAnchor: [12, 41],
       popupAnchor: [1, -34],
@@ -102,78 +102,81 @@ export default function WeatherMap({ onLocationSelect, selectedLocation }: Weath
   return (
     <div className="space-y-6">
       {/* Map Card */}
-      <div className="gradient-card rounded-2xl p-8">
-        <h2 className="font-space font-semibold text-2xl mb-6 flex items-center">
-          <i className="fas fa-globe text-accent mr-3"></i>
-          Interactive Earth Map
+      <div className="gradient-card rounded-2xl p-4 md:p-6 lg:p-8">
+        <h2 className="font-space font-semibold text-lg md:text-xl lg:text-2xl mb-4 md:mb-6 flex items-center">
+          <i className="fas fa-globe text-accent mr-2 md:mr-3 text-lg md:text-xl"></i>
+          <span className="hidden sm:inline">Interactive Earth Map</span>
+          <span className="sm:hidden">Earth Map</span>
         </h2>
         
-        <div className="mb-4">
-          <p className="text-sm text-muted-foreground">
-            <i className="fas fa-info-circle mr-2"></i>
-            Click anywhere on the map to select a location. The coordinates will auto-fill in the form.
+        <div className="mb-3 md:mb-4">
+          <p className="text-xs md:text-sm text-muted-foreground">
+            <i className="fas fa-info-circle mr-1 md:mr-2"></i>
+            <span className="hidden sm:inline">Click anywhere on the map to select a location. The coordinates will auto-fill in the form.</span>
+            <span className="sm:hidden">Tap to select location</span>
           </p>
         </div>
 
         {/* Map Container */}
         <div 
           ref={mapRef} 
-          className="h-96 shadow-2xl rounded-lg" 
+          className="h-64 md:h-80 lg:h-96 shadow-2xl rounded-lg" 
           data-testid="map-container"
-          style={{ height: '400px' }}
+          style={{ height: 'clamp(250px, 50vh, 400px)' }}
         ></div>
 
         {/* Map Controls */}
-        <div className="mt-4 flex items-center justify-between">
-          <div className="text-sm text-muted-foreground">
-            <i className="fas fa-mouse-pointer mr-2"></i>
-            Click to pin location
+        <div className="mt-3 md:mt-4 flex flex-col sm:flex-row items-center justify-between space-y-2 sm:space-y-0">
+          <div className="text-xs md:text-sm text-muted-foreground text-center sm:text-left">
+            <i className="fas fa-mouse-pointer mr-1 md:mr-2"></i>
+            <span className="hidden sm:inline">Click to pin location</span>
+            <span className="sm:hidden">Tap to pin</span>
           </div>
           <button 
             onClick={handleReset}
-            className="px-4 py-2 bg-muted/50 hover:bg-muted rounded-lg transition-all text-sm"
+            className="px-3 md:px-4 py-2 bg-muted/50 hover:bg-muted rounded-lg transition-all text-xs md:text-sm w-full sm:w-auto"
             data-testid="button-reset-map"
           >
-            <i className="fas fa-redo mr-2"></i>Reset
+            <i className="fas fa-redo mr-1 md:mr-2"></i>Reset
           </button>
         </div>
       </div>
 
       {/* Quick Location Presets */}
-      <div className="gradient-card rounded-2xl p-8">
-        <h3 className="font-space font-semibold text-xl mb-4">Quick Locations</h3>
-        <div className="grid grid-cols-2 gap-3">
+      <div className="gradient-card rounded-2xl p-4 md:p-6 lg:p-8">
+        <h3 className="font-space font-semibold text-lg md:text-xl mb-3 md:mb-4">Quick Locations</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
           <button 
             onClick={() => handleQuickLocation(30.0444, 31.2357, 'Cairo, Egypt')} 
-            className="px-4 py-3 bg-muted/50 hover:bg-muted rounded-lg transition-all text-left"
+            className="px-3 md:px-4 py-2 md:py-3 bg-muted/50 hover:bg-muted rounded-lg transition-all text-left"
             data-testid="button-location-cairo"
           >
-            <i className="fas fa-city mr-2 text-accent"></i>
-            <span className="font-medium">Cairo</span>
+            <i className="fas fa-city mr-2 text-accent text-sm md:text-base"></i>
+            <span className="font-medium text-sm md:text-base">Cairo</span>
           </button>
           <button 
             onClick={() => handleQuickLocation(40.7128, -74.0060, 'New York, USA')} 
-            className="px-4 py-3 bg-muted/50 hover:bg-muted rounded-lg transition-all text-left"
+            className="px-3 md:px-4 py-2 md:py-3 bg-muted/50 hover:bg-muted rounded-lg transition-all text-left"
             data-testid="button-location-newyork"
           >
-            <i className="fas fa-city mr-2 text-accent"></i>
-            <span className="font-medium">New York</span>
+            <i className="fas fa-city mr-2 text-accent text-sm md:text-base"></i>
+            <span className="font-medium text-sm md:text-base">New York</span>
           </button>
           <button 
             onClick={() => handleQuickLocation(51.5074, -0.1278, 'London, UK')} 
-            className="px-4 py-3 bg-muted/50 hover:bg-muted rounded-lg transition-all text-left"
+            className="px-3 md:px-4 py-2 md:py-3 bg-muted/50 hover:bg-muted rounded-lg transition-all text-left"
             data-testid="button-location-london"
           >
-            <i className="fas fa-city mr-2 text-accent"></i>
-            <span className="font-medium">London</span>
+            <i className="fas fa-city mr-2 text-accent text-sm md:text-base"></i>
+            <span className="font-medium text-sm md:text-base">London</span>
           </button>
           <button 
             onClick={() => handleQuickLocation(35.6762, 139.6503, 'Tokyo, Japan')} 
-            className="px-4 py-3 bg-muted/50 hover:bg-muted rounded-lg transition-all text-left"
+            className="px-3 md:px-4 py-2 md:py-3 bg-muted/50 hover:bg-muted rounded-lg transition-all text-left"
             data-testid="button-location-tokyo"
           >
-            <i className="fas fa-city mr-2 text-accent"></i>
-            <span className="font-medium">Tokyo</span>
+            <i className="fas fa-city mr-2 text-accent text-sm md:text-base"></i>
+            <span className="font-medium text-sm md:text-base">Tokyo</span>
           </button>
         </div>
       </div>

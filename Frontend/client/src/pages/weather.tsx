@@ -53,29 +53,30 @@ export default function Weather() {
   }, [form]);
 
   return (
-    <div className="container mx-auto px-6 py-12">
+    <div className="container mx-auto px-4 md:px-6 py-8 md:py-12">
       <div className="max-w-7xl mx-auto">
         
         {/* Page Header */}
-        <div className="text-center mb-12">
-          <h1 className="font-space font-bold text-4xl md:text-6xl mb-4 bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent" data-testid="title-weather">
+        <div className="text-center mb-8 md:mb-12">
+          <h1 className="font-space font-bold text-2xl sm:text-3xl md:text-4xl lg:text-6xl mb-3 md:mb-4 bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent" data-testid="title-weather">
             Weather Prediction Portal
           </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto" data-testid="text-weather-description">
+          <p className="text-sm md:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto px-4" data-testid="text-weather-description">
             Select a location on the map or enter coordinates manually to access NASA weather predictions
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-8">
+        <div className="grid lg:grid-cols-2 gap-6 md:gap-8">
           
           {/* Left Column: Input Form */}
-          <div className="space-y-6">
+          <div className="space-y-4 md:space-y-6">
             
             {/* Coordinate Input Card */}
-            <div className="gradient-card rounded-2xl p-8">
-              <h2 className="font-space font-semibold text-2xl mb-6 flex items-center">
-                <i className="fas fa-map-pin text-accent mr-3"></i>
-                Location Coordinates
+            <div className="gradient-card rounded-2xl p-4 md:p-6 lg:p-8">
+              <h2 className="font-space font-semibold text-lg md:text-xl lg:text-2xl mb-4 md:mb-6 flex items-center">
+                <i className="fas fa-map-pin text-accent mr-2 md:mr-3 text-lg md:text-xl"></i>
+                <span className="hidden sm:inline">Location Coordinates</span>
+                <span className="sm:hidden">Coordinates</span>
               </h2>
               
               <Form {...form}>
@@ -140,12 +141,12 @@ export default function Weather() {
                     />
 
                     {/* Location Name Display */}
-                    <div className="gradient-card rounded-lg p-4 flex items-center justify-between">
-                      <div className="flex items-center">
-                        <i className="fas fa-location-dot text-accent text-xl mr-3"></i>
-                        <div>
-                          <div className="text-sm text-muted-foreground">Selected Location</div>
-                          <div className="font-semibold" data-testid="text-selected-location">
+                    <div className="gradient-card rounded-lg p-3 md:p-4 flex items-center justify-between">
+                      <div className="flex items-center min-w-0 flex-1">
+                        <i className="fas fa-location-dot text-accent text-lg md:text-xl mr-2 md:mr-3 flex-shrink-0"></i>
+                        <div className="min-w-0 flex-1">
+                          <div className="text-xs md:text-sm text-muted-foreground">Selected Location</div>
+                          <div className="font-semibold text-sm md:text-base truncate" data-testid="text-selected-location">
                             {selectedLocation?.name || "Click map to select"}
                           </div>
                         </div>
@@ -154,9 +155,9 @@ export default function Weather() {
                   </div>
 
                   {/* Date Input */}
-                  <div className="gradient-card rounded-xl p-6">
-                    <h3 className="font-space font-semibold text-xl mb-4 flex items-center">
-                      <i className="fas fa-calendar-alt text-secondary mr-3"></i>
+                  <div className="gradient-card rounded-xl p-4 md:p-6">
+                    <h3 className="font-space font-semibold text-lg md:text-xl mb-3 md:mb-4 flex items-center">
+                      <i className="fas fa-calendar-alt text-secondary mr-2 md:mr-3 text-lg md:text-xl"></i>
                       Query Date
                     </h3>
                     
@@ -183,11 +184,12 @@ export default function Weather() {
                   {/* Submit Button */}
                   <Button 
                     type="submit"
-                    className="btn-hover w-full bg-gradient-to-r from-accent to-primary text-white px-8 py-4 rounded-xl font-space font-semibold text-lg flex items-center justify-center space-x-3"
+                    className="btn-hover w-full bg-gradient-to-r from-accent to-primary text-white px-6 md:px-8 py-3 md:py-4 rounded-xl font-space font-semibold text-base md:text-lg flex items-center justify-center space-x-2 md:space-x-3"
                     data-testid="button-submit-weather"
                   >
                     <i className="fas fa-cloud-sun"></i>
-                    <span>Get Weather Prediction</span>
+                    <span className="hidden sm:inline">Get Weather Prediction</span>
+                    <span className="sm:hidden">Get Prediction</span>
                     <i className="fas fa-arrow-right"></i>
                   </Button>
                 </form>
@@ -203,37 +205,37 @@ export default function Weather() {
         </div>
 
         {/* Additional Info Section */}
-        <div className="mt-12 gradient-card rounded-2xl p-8">
-          <h3 className="font-space font-semibold text-2xl mb-6 flex items-center">
-            <i className="fas fa-satellite text-secondary mr-3"></i>
+        <div className="mt-8 md:mt-12 gradient-card rounded-2xl p-4 md:p-6 lg:p-8">
+          <h3 className="font-space font-semibold text-lg md:text-xl lg:text-2xl mb-4 md:mb-6 flex items-center">
+            <i className="fas fa-satellite text-secondary mr-2 md:mr-3 text-lg md:text-xl"></i>
             NASA Data Sources
           </h3>
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="flex items-start space-x-4" data-testid="info-modis">
-              <div className="bg-primary/20 p-3 rounded-lg">
-                <i className="fas fa-satellite-dish text-primary text-xl"></i>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+            <div className="flex items-start space-x-3 md:space-x-4" data-testid="info-modis">
+              <div className="bg-primary/20 p-2 md:p-3 rounded-lg flex-shrink-0">
+                <i className="fas fa-satellite-dish text-primary text-lg md:text-xl"></i>
               </div>
-              <div>
-                <h4 className="font-semibold mb-1">MODIS Satellites</h4>
-                <p className="text-sm text-muted-foreground">Real-time atmospheric data from Terra and Aqua satellites</p>
-              </div>
-            </div>
-            <div className="flex items-start space-x-4" data-testid="info-geos">
-              <div className="bg-secondary/20 p-3 rounded-lg">
-                <i className="fas fa-cloud text-secondary text-xl"></i>
-              </div>
-              <div>
-                <h4 className="font-semibold mb-1">GEOS-5 Models</h4>
-                <p className="text-sm text-muted-foreground">Advanced atmospheric simulation and prediction models</p>
+              <div className="min-w-0 flex-1">
+                <h4 className="font-semibold mb-1 text-sm md:text-base">MODIS Satellites</h4>
+                <p className="text-xs md:text-sm text-muted-foreground">Real-time atmospheric data from Terra and Aqua satellites</p>
               </div>
             </div>
-            <div className="flex items-start space-x-4" data-testid="info-archives">
-              <div className="bg-accent/20 p-3 rounded-lg">
-                <i className="fas fa-database text-accent text-xl"></i>
+            <div className="flex items-start space-x-3 md:space-x-4" data-testid="info-geos">
+              <div className="bg-secondary/20 p-2 md:p-3 rounded-lg flex-shrink-0">
+                <i className="fas fa-cloud text-secondary text-lg md:text-xl"></i>
               </div>
-              <div>
-                <h4 className="font-semibold mb-1">Historical Archives</h4>
-                <p className="text-sm text-muted-foreground">Decades of climate and weather pattern data</p>
+              <div className="min-w-0 flex-1">
+                <h4 className="font-semibold mb-1 text-sm md:text-base">GEOS-5 Models</h4>
+                <p className="text-xs md:text-sm text-muted-foreground">Advanced atmospheric simulation and prediction models</p>
+              </div>
+            </div>
+            <div className="flex items-start space-x-3 md:space-x-4" data-testid="info-archives">
+              <div className="bg-accent/20 p-2 md:p-3 rounded-lg flex-shrink-0">
+                <i className="fas fa-database text-accent text-lg md:text-xl"></i>
+              </div>
+              <div className="min-w-0 flex-1">
+                <h4 className="font-semibold mb-1 text-sm md:text-base">Historical Archives</h4>
+                <p className="text-xs md:text-sm text-muted-foreground">Decades of climate and weather pattern data</p>
               </div>
             </div>
           </div>

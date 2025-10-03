@@ -31,23 +31,23 @@ function App() {
               <Router />
             </div>
           </div>
-          <footer className="relative z-10 mt-20 py-8 border-t border-white/10">
-            <div className="container mx-auto px-6">
-              <div className="flex flex-col md:flex-row justify-between items-center">
-                <div className="mb-4 md:mb-0">
-                  <p className="text-muted-foreground text-sm">
+          <footer className="relative z-10 mt-12 md:mt-20 py-6 md:py-8 border-t border-white/10">
+            <div className="container mx-auto px-4 md:px-6">
+              <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+                <div className="text-center md:text-left">
+                  <p className="text-muted-foreground text-xs md:text-sm">
                     © 2024 Void Function Team | NASA Space App Cairo
                   </p>
                 </div>
-                <div className="flex space-x-6">
+                <div className="flex space-x-4 md:space-x-6">
                   <a href="#" className="text-muted-foreground hover:text-accent transition-colors" data-testid="link-github">
-                    <i className="fab fa-github text-xl"></i>
+                    <i className="fab fa-github text-lg md:text-xl"></i>
                   </a>
                   <a href="#" className="text-muted-foreground hover:text-accent transition-colors" data-testid="link-twitter">
-                    <i className="fab fa-twitter text-xl"></i>
+                    <i className="fab fa-twitter text-lg md:text-xl"></i>
                   </a>
                   <a href="#" className="text-muted-foreground hover:text-accent transition-colors" data-testid="link-linkedin">
-                    <i className="fab fa-linkedin text-xl"></i>
+                    <i className="fab fa-linkedin text-lg md:text-xl"></i>
                   </a>
                 </div>
               </div>
