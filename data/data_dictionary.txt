@@ -1,0 +1,64 @@
+WEATHER DATA DICTIONARY - ML READY
+================================================================================
+
+ORIGINAL FEATURES:
+--------------------------------------------------------------------------------
+STATION: Weather station ID
+NAME: Weather station name
+DATE: Date of observation
+PRCP: Precipitation (inches)
+TAVG: Average temperature (°F)
+TMAX: Maximum temperature (°F)
+TMIN: Minimum temperature (°F)
+
+TEMPORAL FEATURES:
+--------------------------------------------------------------------------------
+YEAR, MONTH, DAY: Date components
+DAY_OF_YEAR: Day number in year (1-365)
+WEEK_OF_YEAR: Week number in year
+QUARTER: Quarter of the year (1-4)
+MONTH_SIN, MONTH_COS: Cyclical encoding of month
+DAY_OF_YEAR_SIN, DAY_OF_YEAR_COS: Cyclical encoding of day of year
+SEASON: Season (Winter, Spring, Summer, Fall)
+
+DERIVED FEATURES:
+--------------------------------------------------------------------------------
+TEMP_RANGE: Daily temperature range (TMAX - TMIN)
+IS_RAINY: Binary indicator (1 if PRCP > 0)
+PRCP_INTENSITY: Categorical precipitation intensity
+
+ROLLING/MOVING AVERAGE FEATURES:
+--------------------------------------------------------------------------------
+*_MA_XD: Moving average over X days
+*_STD_XD: Moving standard deviation over X days
+PRCP_SUM_XD: Sum of precipitation over X days
+Windows: 3, 7, 14, 30 days
+
+LAG FEATURES:
+--------------------------------------------------------------------------------
+*_LAG_XD: Value from X days ago
+Lags: 1, 2, 3, 7, 14 days
+
+NORMALIZED FEATURES:
+--------------------------------------------------------------------------------
+*_STANDARDIZED: Z-score normalization (mean=0, std=1)
+*_NORMALIZED: Min-Max normalization (0-1 range)
+
+TARGET VARIABLES:
+--------------------------------------------------------------------------------
+TARGET_RAINFALL_NEXT_DAY: Precipitation amount next day
+TARGET_WILL_RAIN_NEXT_DAY: Binary (1 if rain next day)
+TARGET_TEMP_NEXT_DAY: Average temperature next day
+TARGET_TMAX_NEXT_DAY: Maximum temperature next day
+TARGET_TMIN_NEXT_DAY: Minimum temperature next day
+TARGET_*_3D, TARGET_*_7D: Predictions 3 and 7 days ahead
+
+USAGE RECOMMENDATIONS:
+--------------------------------------------------------------------------------
+1. Use STANDARDIZED features for models sensitive to scale (SVM, Neural Networks)
+2. Use NORMALIZED features for models requiring 0-1 range
+3. Include temporal features for capturing seasonality
+4. Use rolling features for capturing trends
+5. Use lag features for time series models (LSTM, ARIMA)
+6. Remove highly correlated features for linear models
+7. Consider feature selection for high-dimensional datasets
