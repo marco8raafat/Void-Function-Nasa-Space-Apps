@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Rain Prediction</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <style>
+    #map { height: 400px; width: 100%; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h1>🌧️ Will it rain?</h1>
+
+  <!--Date-->
+  <label>Select Date & Time:</label>
+  <input type="datetime-local" id="datetime">
+  <br><br>
+
+  <!--map-->
+  <p>Click on the map to select a location:</p>
+  <div id="map"></div>
+  <p id="location">No location selected yet.</p>
+
+  <!--Predict -->
+  <button onclick="getPrediction()">Predict</button>
+  <p id="result"></p>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    let latitude = null;
+    let longitude = null;
+
+    // Map Setting
+    var map = L.map('map').setView([30.0444, 31.2357], 5); // Cairo as default
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+
+    map.on('click', function(e) {
+      latitude = e.latlng.lat;
+      longitude = e.latlng.lng;
+      document.getElementById("location").innerText =
+        "Selected Location: " + latitude.toFixed(4) + ", " + longitude.toFixed(4);
+    });
+
+    
+    async function getPrediction() {
+      if (latitude === null || longitude === null) {
+        alert("Please select a location on the map!");
+        return;
+      }
+
+      let datetime = document.getElementById("datetime").value;
+      if (!datetime) {
+        alert("Please select a date and time!");
+        return;
+      }
+
+      let response = await fetch(`http://127.0.0.1:8000/predict?lat=${latitude}&lon=${longitude}&datetime=${datetime}`);
+      let data = await response.json();
+
+      document.getElementById("result").innerText =
+        "Rain Probability: " + (data.rain_probability * 100).toFixed(2) + "%";
+    }
+  </script>
+</body>
+</html>
