@@ -1,6 +1,10 @@
 WEATHER DATA DICTIONARY - ML READY
 ================================================================================
 
+OUTPUT FILE: weather_processed_ml_ready.csv
+Total Features: 131
+Total Samples: 8598
+
 ORIGINAL FEATURES:
 --------------------------------------------------------------------------------
 STATION: Weather station ID
@@ -53,6 +57,82 @@ TARGET_TMAX_NEXT_DAY: Maximum temperature next day
 TARGET_TMIN_NEXT_DAY: Minimum temperature next day
 TARGET_*_3D, TARGET_*_7D: Predictions 3 and 7 days ahead
 
+FEATURE SETS (for easy selection):
+--------------------------------------------------------------------------------
+
+TEMPORAL (22 features):
+  - YEAR
+  - MONTH
+  - DAY
+  - DAY_OF_YEAR
+  - WEEK_OF_YEAR
+  - QUARTER
+  - MONTH_SIN
+  - MONTH_COS
+  - DAY_OF_YEAR_SIN
+  - DAY_OF_YEAR_COS
+  ... and 12 more
+
+BASIC_WEATHER (6 features):
+  - TAVG
+  - TMAX
+  - TMIN
+  - PRCP
+  - TEMP_RANGE
+  - IS_RAINY
+
+ROLLING (48 features):
+  - TAVG_MA_3D
+  - TAVG_STD_3D
+  - PRCP_SUM_3D
+  - PRCP_MA_3D
+  - TAVG_MA_7D
+  - TAVG_STD_7D
+  - PRCP_SUM_7D
+  - PRCP_MA_7D
+  - TAVG_MA_14D
+  - TAVG_STD_14D
+  ... and 38 more
+
+LAG (30 features):
+  - TAVG_LAG_1D
+  - PRCP_LAG_1D
+  - TAVG_LAG_2D
+  - PRCP_LAG_2D
+  - TAVG_LAG_3D
+  - PRCP_LAG_3D
+  - TAVG_LAG_7D
+  - PRCP_LAG_7D
+  - TAVG_LAG_14D
+  - PRCP_LAG_14D
+  ... and 20 more
+
+NORMALIZED (66 features):
+  - TAVG_STANDARDIZED
+  - TMAX_STANDARDIZED
+  - TMIN_STANDARDIZED
+  - PRCP_STANDARDIZED
+  - TEMP_RANGE_STANDARDIZED
+  - TMAX_STANDARDIZED
+  - TAVG_MA_3D_STANDARDIZED
+  - TAVG_STD_3D_STANDARDIZED
+  - PRCP_SUM_3D_STANDARDIZED
+  - PRCP_MA_3D_STANDARDIZED
+  ... and 56 more
+
+ALL_FEATURES (106 features):
+  - YEAR
+  - MONTH
+  - DAY
+  - DAY_OF_YEAR
+  - WEEK_OF_YEAR
+  - QUARTER
+  - MONTH_SIN
+  - MONTH_COS
+  - DAY_OF_YEAR_SIN
+  - DAY_OF_YEAR_COS
+  ... and 96 more
+
 USAGE RECOMMENDATIONS:
 --------------------------------------------------------------------------------
 1. Use STANDARDIZED features for models sensitive to scale (SVM, Neural Networks)
@@ -62,3 +142,12 @@ USAGE RECOMMENDATIONS:
 5. Use lag features for time series models (LSTM, ARIMA)
 6. Remove highly correlated features for linear models
 7. Consider feature selection for high-dimensional datasets
+
+HOW TO USE THE DATA:
+--------------------------------------------------------------------------------
+1. Load: df = pd.read_csv('data/weather_processed_ml_ready.csv')
+2. Select features based on your task (see FEATURE SETS above)
+3. Select appropriate target variable (TARGET_*)
+4. Split into train/validation/test sets
+5. Train your ML model
+6. Evaluate and tune

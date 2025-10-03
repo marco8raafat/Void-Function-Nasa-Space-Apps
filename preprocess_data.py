@@ -321,62 +321,20 @@ class WeatherDataPreprocessor:
     
     def save_processed_data(self):
         """
-        Save processed datasets
+        Save processed datasets - ALL IN ONE FILE
         """
         print("\n" + "="*80)
         print("SAVING PROCESSED DATA")
         print("="*80)
         
-        # Save complete processed dataset
+        # Save complete processed dataset - SINGLE FILE
         output_file = "data/weather_processed_ml_ready.csv"
         self.df.to_csv(output_file, index=False)
         print(f"✓ Complete dataset saved: {output_file}")
         print(f"  Shape: {self.df.shape}")
+        print(f"  All features and targets included in one file!")
         
-        # Save feature sets information
-        feature_info_file = "data/feature_sets_info.txt"
-        with open(feature_info_file, 'w') as f:
-            f.write("FEATURE SETS FOR MACHINE LEARNING\n")
-            f.write("="*80 + "\n\n")
-            
-            for name, features in self.feature_sets.items():
-                f.write(f"\n{name.upper()} ({len(features)} features):\n")
-                f.write("-" * 80 + "\n")
-                for feature in features:
-                    f.write(f"  - {feature}\n")
-                f.write("\n")
-        
-        print(f"✓ Feature sets info saved: {feature_info_file}")
-        
-        # Create separate datasets for different prediction tasks
-        
-        # 1. Rainfall prediction dataset
-        rainfall_features = (
-            self.feature_sets['temporal'] + 
-            self.feature_sets['basic_weather'] + 
-            self.feature_sets['rolling'] + 
-            self.feature_sets['lag']
-        )
-        rainfall_targets = [col for col in self.df.columns if 'TARGET_RAINFALL' in col or 'TARGET_WILL_RAIN' in col]
-        rainfall_df = self.df[rainfall_features + rainfall_targets].copy()
-        rainfall_df.to_csv("data/rainfall_prediction_dataset.csv", index=False)
-        print(f"✓ Rainfall prediction dataset saved: data/rainfall_prediction_dataset.csv")
-        print(f"  Shape: {rainfall_df.shape}")
-        
-        # 2. Temperature prediction dataset
-        temp_features = (
-            self.feature_sets['temporal'] + 
-            self.feature_sets['basic_weather'] + 
-            self.feature_sets['rolling'] + 
-            self.feature_sets['lag']
-        )
-        temp_targets = [col for col in self.df.columns if 'TARGET_TEMP' in col or 'TARGET_TMAX' in col or 'TARGET_TMIN' in col]
-        temp_df = self.df[temp_features + temp_targets].copy()
-        temp_df.to_csv("data/temperature_prediction_dataset.csv", index=False)
-        print(f"✓ Temperature prediction dataset saved: data/temperature_prediction_dataset.csv")
-        print(f"  Shape: {temp_df.shape}")
-        
-        # Save data dictionary
+        # Save data dictionary and feature information as text file
         self._save_data_dictionary()
         
     def _save_data_dictionary(self):
@@ -388,6 +346,10 @@ class WeatherDataPreprocessor:
         with open(dict_file, 'w') as f:
             f.write("WEATHER DATA DICTIONARY - ML READY\n")
             f.write("="*80 + "\n\n")
+            
+            f.write("OUTPUT FILE: weather_processed_ml_ready.csv\n")
+            f.write(f"Total Features: {len(self.df.columns)}\n")
+            f.write(f"Total Samples: {len(self.df)}\n\n")
             
             f.write("ORIGINAL FEATURES:\n")
             f.write("-"*80 + "\n")
@@ -441,6 +403,17 @@ class WeatherDataPreprocessor:
             f.write("TARGET_TMIN_NEXT_DAY: Minimum temperature next day\n")
             f.write("TARGET_*_3D, TARGET_*_7D: Predictions 3 and 7 days ahead\n\n")
             
+            f.write("FEATURE SETS (for easy selection):\n")
+            f.write("-"*80 + "\n\n")
+            
+            for name, features in self.feature_sets.items():
+                f.write(f"{name.upper()} ({len(features)} features):\n")
+                for feature in features[:10]:  # Show first 10
+                    f.write(f"  - {feature}\n")
+                if len(features) > 10:
+                    f.write(f"  ... and {len(features) - 10} more\n")
+                f.write("\n")
+            
             f.write("USAGE RECOMMENDATIONS:\n")
             f.write("-"*80 + "\n")
             f.write("1. Use STANDARDIZED features for models sensitive to scale (SVM, Neural Networks)\n")
@@ -449,9 +422,76 @@ class WeatherDataPreprocessor:
             f.write("4. Use rolling features for capturing trends\n")
             f.write("5. Use lag features for time series models (LSTM, ARIMA)\n")
             f.write("6. Remove highly correlated features for linear models\n")
-            f.write("7. Consider feature selection for high-dimensional datasets\n")
+            f.write("7. Consider feature selection for high-dimensional datasets\n\n")
+            
+            f.write("HOW TO USE THE DATA:\n")
+            f.write("-"*80 + "\n")
+            f.write("1. Load: df = pd.read_csv('data/weather_processed_ml_ready.csv')\n")
+            f.write("2. Select features based on your task (see FEATURE SETS above)\n")
+            f.write("3. Select appropriate target variable (TARGET_*)\n")
+            f.write("4. Split into train/validation/test sets\n")
+            f.write("5. Train your ML model\n")
+            f.write("6. Evaluate and tune\n")
         
-        print(f"✓ Data dictionary saved: {dict_file}")
+        print("✓ Data dictionary saved: {dict_file}")
+    
+    def save_basic_data(self):
+        """
+        Save only basic cleaned weather data
+        """
+        print("\n" + "="*80)
+        print("SAVING CLEANED DATA - BASIC FEATURES ONLY")
+        print("="*80)
+        
+        # Keep only the essential columns
+        basic_columns = ['STATION', 'NAME', 'DATE', 'YEAR', 'MONTH', 'DAY', 
+                        'PRCP', 'TAVG', 'TMAX', 'TMIN']
+        
+        # Select only existing columns
+        basic_columns = [col for col in basic_columns if col in self.df.columns]
+        
+        basic_df = self.df[basic_columns].copy()
+        
+        # Save to single file
+        output_file = "data/weather_cleaned.csv"
+        basic_df.to_csv(output_file, index=False)
+        
+        print(f"✓ Cleaned dataset saved: {output_file}")
+        print(f"  Shape: {basic_df.shape}")
+        print(f"  Columns: {basic_df.columns.tolist()}")
+        print("\n  Features included:")
+        print("    • STATION - Weather station ID")
+        print("    • NAME - Station name")
+        print("    • DATE - Date of observation")
+        print("    • YEAR, MONTH, DAY - Date components")
+        print("    • PRCP - Precipitation (inches)")
+        print("    • TAVG - Average temperature (°F)")
+        print("    • TMAX - Maximum temperature (°F)")
+        print("    • TMIN - Minimum temperature (°F)")
+    
+    def generate_basic_summary(self):
+        """
+        Generate summary for basic preprocessing
+        """
+        print("\n" + "="*80)
+        print("PREPROCESSING COMPLETED!")
+        print("="*80)
+        
+        print("\nData Quality:")
+        print(f"  ✓ Missing values handled")
+        print(f"  ✓ Dates parsed and cleaned")
+        print(f"  ✓ Ready for machine learning")
+        
+        print("\n🎯 Output File:")
+        print("  ✓ data/weather_cleaned.csv")
+        
+        print("\nNext Steps:")
+        print("1. Load: df = pd.read_csv('data/weather_cleaned.csv')")
+        print("2. Create your own features as needed")
+        print("3. Split into train/test sets")
+        print("4. Train your ML models")
+        print("="*80 + "\n")
+
     
     def generate_summary_report(self):
         """
@@ -483,38 +523,39 @@ class WeatherDataPreprocessor:
         print("PREPROCESSING COMPLETED SUCCESSFULLY!")
         print("="*80)
         print("\nNext Steps:")
-        print("1. Load the processed datasets from the 'data' folder")
-        print("2. Split data into train/validation/test sets")
-        print("3. Select appropriate features for your specific ML task")
-        print("4. Train your models (Random Forest, XGBoost, LSTM, etc.)")
-        print("5. Evaluate and tune hyperparameters")
-        print("\nFiles created:")
-        print("  - data/weather_processed_ml_ready.csv (complete dataset)")
-        print("  - data/rainfall_prediction_dataset.csv (rainfall-specific)")
-        print("  - data/temperature_prediction_dataset.csv (temperature-specific)")
-        print("  - data/feature_sets_info.txt (feature groupings)")
-        print("  - data/data_dictionary.txt (feature descriptions)")
+        print("1. Load the processed dataset from 'data/weather_processed_ml_ready.csv'")
+        print("2. Read the data dictionary in 'data/data_dictionary.txt'")
+        print("3. Split data into train/validation/test sets")
+        print("4. Select appropriate features for your specific ML task")
+        print("5. Train your models (Random Forest, XGBoost, LSTM, etc.)")
+        print("6. Evaluate and tune hyperparameters")
+        print("\n🎯 Single Output File Created:")
+        print("  ✓ data/weather_processed_ml_ready.csv (ALL data in one file!)")
+        print("  ✓ data/data_dictionary.txt (documentation)")
         print("="*80 + "\n")
+
     
     def run_full_preprocessing(self):
         """
-        Run the complete preprocessing pipeline
+        Run the complete preprocessing pipeline - BASIC FEATURES ONLY
         """
         print("\n" + "="*80)
         print("STARTING WEATHER DATA PREPROCESSING PIPELINE")
+        print("Basic Weather Features Only - Simple & Clean")
         print("="*80 + "\n")
         
         self.initial_inspection()
         self.parse_dates()
         self.handle_missing_values()
-        self.create_derived_features()
-        self.detect_and_handle_outliers()
-        self.create_target_variables()
-        self.encode_categorical_features()
-        self.normalize_features()
-        self.create_feature_sets()
-        self.save_processed_data()
-        self.generate_summary_report()
+        # Skip derived features, rolling averages, lags, normalization
+        # self.create_derived_features()
+        # self.detect_and_handle_outliers()
+        # self.create_target_variables()
+        # self.encode_categorical_features()
+        # self.normalize_features()
+        # self.create_feature_sets()
+        self.save_basic_data()
+        self.generate_basic_summary()
 
 
 def main():
