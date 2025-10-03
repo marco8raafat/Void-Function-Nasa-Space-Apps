@@ -12,5 +12,27 @@ export const locationSchema = z.object({
   longitude: z.number(),
 });
 
+export const weatherPredictionResponseSchema = z.object({
+  rain_probability: z.number(),
+  rain_predicted: z.number(),
+  season: z.string(),
+  season_code: z.number(),
+  confidence: z.number(),
+  location: z.object({
+    latitude: z.number(),
+    longitude: z.number(),
+  }),
+  date: z.object({
+    day: z.number(),
+    month: z.number(),
+    year: z.number(),
+  }),
+  model_info: z.object({
+    threshold: z.number(),
+    model_accuracy: z.number(),
+  }),
+});
+
 export type WeatherQuery = z.infer<typeof weatherQuerySchema>;
 export type Location = z.infer<typeof locationSchema>;
+export type WeatherPredictionResponse = z.infer<typeof weatherPredictionResponseSchema>;

@@ -1,17 +1,22 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { weatherQuerySchema, type WeatherQuery } from "@shared/schema";
+import { weatherQuerySchema, type WeatherQuery, type WeatherPredictionResponse } from "@shared/schema";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import WeatherMap from "@/components/weather-map";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 export default function Weather() {
   const { toast } = useToast();
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number; name?: string } | null>(null);
+  const [prediction, setPrediction] = useState<WeatherPredictionResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [mlStatus, setMlStatus] = useState<"checking" | "online" | "offline">("checking");
   
   const form = useForm<WeatherQuery>({
     resolver: zodResolver(weatherQuerySchema),
@@ -22,27 +27,69 @@ export default function Weather() {
     }
   });
 
+  // Check ML backend status on mount
+  useEffect(() => {
+    checkMlStatus();
+  }, []);
+
+  const checkMlStatus = async () => {
+    try {
+      const response = await fetch('/api/ml-status');
+      if (response.ok) {
+        setMlStatus("online");
+      } else {
+        setMlStatus("offline");
+      }
+    } catch (error) {
+      setMlStatus("offline");
+    }
+  };
+
   const handleLocationSelect = (lat: number, lng: number) => {
-    setSelectedLocation({ lat, lng, name: `Lat: ${lat}, Lng: ${lng}` });
+    setSelectedLocation({ lat, lng, name: `Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}` });
     form.setValue('latitude', lat);
     form.setValue('longitude', lng);
   };
 
   const onSubmit = async (data: WeatherQuery) => {
+    setIsLoading(true);
+    setPrediction(null);
+    
     try {
-      // In a real implementation, this would make an API call to NASA weather services
-      console.log('Weather query submitted:', data);
-      
+      // Parse the date
+      const dateObj = new Date(data.date);
+      const day = dateObj.getDate();
+      const month = dateObj.getMonth() + 1; // JavaScript months are 0-indexed
+      const year = dateObj.getFullYear();
+
+      // Call the prediction API
+      const response = await fetch(
+        `/api/predict?lat=${data.latitude}&lon=${data.longitude}&day=${day}&month=${month}&year=${year}`
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to get prediction");
+      }
+
+      const result: WeatherPredictionResponse = await response.json();
+      setPrediction(result);
+
       toast({
-        title: "Weather Prediction Request Submitted",
-        description: `Location: ${data.latitude}, ${data.longitude} | Date: ${data.date}`,
+        title: "Prediction Complete ✓",
+        description: result.rain_predicted === 1 
+          ? `High chance of rain (${(result.rain_probability * 100).toFixed(1)}%)`
+          : `Low chance of rain (${(result.rain_probability * 100).toFixed(1)}%)`,
       });
     } catch (error) {
+      console.error("Prediction error:", error);
       toast({
-        title: "Error",
-        description: "Failed to submit weather query. Please try again.",
+        title: "Prediction Failed",
+        description: error instanceof Error ? error.message : "Please ensure the ML backend is running",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -64,6 +111,14 @@ export default function Weather() {
           <p className="text-sm md:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto px-4" data-testid="text-weather-description">
             Select a location on the map or enter coordinates manually to access NASA weather predictions
           </p>
+          
+          {/* ML Backend Status Badge */}
+          <div className="mt-4 flex justify-center">
+            <Badge variant={mlStatus === "online" ? "default" : mlStatus === "offline" ? "destructive" : "secondary"}>
+              <i className={`fas fa-circle mr-2 ${mlStatus === "online" ? "text-green-500" : "text-red-500"}`}></i>
+              ML Backend: {mlStatus === "checking" ? "Checking..." : mlStatus === "online" ? "Online" : "Offline"}
+            </Badge>
+          </div>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-6 md:gap-8">
@@ -184,17 +239,95 @@ export default function Weather() {
                   {/* Submit Button */}
                   <Button 
                     type="submit"
-                    className="btn-hover w-full bg-gradient-to-r from-accent to-primary text-white px-6 md:px-8 py-3 md:py-4 rounded-xl font-space font-semibold text-base md:text-lg flex items-center justify-center space-x-2 md:space-x-3"
+                    disabled={isLoading || mlStatus === "offline"}
+                    className="btn-hover w-full bg-gradient-to-r from-accent to-primary text-white px-6 md:px-8 py-3 md:py-4 rounded-xl font-space font-semibold text-base md:text-lg flex items-center justify-center space-x-2 md:space-x-3 disabled:opacity-50 disabled:cursor-not-allowed"
                     data-testid="button-submit-weather"
                   >
-                    <i className="fas fa-cloud-sun"></i>
-                    <span className="hidden sm:inline">Get Weather Prediction</span>
-                    <span className="sm:hidden">Get Prediction</span>
-                    <i className="fas fa-arrow-right"></i>
+                    {isLoading ? (
+                      <>
+                        <i className="fas fa-spinner fa-spin"></i>
+                        <span>Processing...</span>
+                      </>
+                    ) : (
+                      <>
+                        <i className="fas fa-cloud-sun"></i>
+                        <span className="hidden sm:inline">Get Weather Prediction</span>
+                        <span className="sm:hidden">Get Prediction</span>
+                        <i className="fas fa-arrow-right"></i>
+                      </>
+                    )}
                   </Button>
                 </form>
               </Form>
             </div>
+
+            {/* Prediction Results */}
+            {prediction && (
+              <Card className="gradient-card border-2 border-primary/30">
+                <CardHeader>
+                  <CardTitle className="flex items-center text-2xl">
+                    <i className={`fas ${prediction.rain_predicted === 1 ? 'fa-cloud-rain text-blue-500' : 'fa-sun text-yellow-500'} mr-3`}></i>
+                    Prediction Results
+                  </CardTitle>
+                  <CardDescription>
+                    Based on XGBoost ML model with {(prediction.model_info.model_accuracy * 100).toFixed(1)}% accuracy
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Rain Prediction */}
+                  <div className="text-center p-6 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-xl">
+                    <div className="text-5xl font-bold mb-2">
+                      {prediction.rain_predicted === 1 ? (
+                        <span className="text-blue-400">Rain Expected</span>
+                      ) : (
+                        <span className="text-yellow-400">No Rain</span>
+                      )}
+                    </div>
+                    <div className="text-2xl text-muted-foreground">
+                      {(prediction.rain_probability * 100).toFixed(1)}% probability
+                    </div>
+                  </div>
+
+                  {/* Details Grid */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 bg-secondary/20 rounded-lg">
+                      <div className="text-sm text-muted-foreground">Season</div>
+                      <div className="text-lg font-semibold flex items-center">
+                        <i className={`fas ${
+                          prediction.season === 'Winter' ? 'fa-snowflake' :
+                          prediction.season === 'Spring' ? 'fa-leaf' :
+                          prediction.season === 'Summer' ? 'fa-sun' :
+                          'fa-wind'
+                        } mr-2`}></i>
+                        {prediction.season}
+                      </div>
+                    </div>
+
+                    <div className="p-4 bg-secondary/20 rounded-lg">
+                      <div className="text-sm text-muted-foreground">Confidence</div>
+                      <div className="text-lg font-semibold">
+                        {(prediction.confidence * 100).toFixed(1)}%
+                      </div>
+                    </div>
+
+                    <div className="p-4 bg-secondary/20 rounded-lg col-span-2">
+                      <div className="text-sm text-muted-foreground">Location</div>
+                      <div className="text-base font-semibold">
+                        {prediction.location.latitude.toFixed(4)}°, {prediction.location.longitude.toFixed(4)}°
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Model Info */}
+                  <div className="p-4 bg-accent/10 rounded-lg border border-accent/30">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Model Threshold:</span>
+                      <span className="font-semibold">{prediction.model_info.threshold.toFixed(2)}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Right Column: Interactive Map */}
