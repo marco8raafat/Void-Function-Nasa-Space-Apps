@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import xarray as xr
 import pandas as pd
+import os 
 
 
 #Data
@@ -12,19 +13,24 @@ files = [
     "data\seaSurfaceTemp.nc"
 ]
 
-datasets = [xr.open_dataset(f) for f in files]   
+# Load datasets
+datasets = [xr.open_dataset(f) for f in files]
 
-merged = xr.merge(datasets)
+# datamonth 
+cleaned = [ds.drop_vars("datamonth") if "datamonth" in ds.variables else ds for ds in datasets]
 
-print("Variables in merged dataset:")
-print(merged.data_vars) 
+# Merge datasets 
+merged = xr.merge(cleaned, compat="override")
 
+print(" Variables in merged dataset:")
+print(merged.data_vars)
+
+# Convert to DataFrame & Save to CSV
 df = merged.to_dataframe().reset_index()
+csv_path = "weather_25years.csv"
+df.to_csv(csv_path, index=False)
 
-df.to_csv("weather_25years.csv", index=False)
-
-print(" CSV : weather_25years.csv")
-
+print(f" CSV created: {os.path.abspath(csv_path)}")
 #API
 app = FastAPI()
 
@@ -41,3 +47,14 @@ def predict(lat: float, lon: float):
    
     rain_probability = (float(lat) + float(lon)) % 100 / 100  
     return {"rain_probability": rain_probability}
+
+
+
+
+## Before cleaning 
+
+# Read back the CSV (use csv_path defined above). The default delimiter is ',' so no need
+# to pass a delimiter argument.
+df = pd.read_csv(csv_path)
+print('\n')
+print(df.head(50))
